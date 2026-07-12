@@ -4,7 +4,13 @@
 export const DRUM_ACTIONS = {
     36: 'ACTION_JUMP',        // Kick
     38: 'ACTION_SHOOT',       // Snare
-    42: 'ACTION_LANE_LEFT',   // Closed Hi-Hat
+    
+    // Map all common Hi-Hat states to move left
+    42: 'ACTION_LANE_LEFT',   // Closed Hi-Hat (Edge/Bow)
+    46: 'ACTION_LANE_LEFT',   // Open Hi-Hat
+    44: 'ACTION_LANE_LEFT',   // Hi-Hat Pedal "Chink"
+    26: 'ACTION_LANE_LEFT',   // Hi-Hat Open Rim (Sometimes used by Donner)
+    
     51: 'ACTION_LANE_RIGHT'   // Ride
 };
 
