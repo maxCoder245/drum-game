@@ -64,26 +64,24 @@ camera.lookAt(0, 0, -10);
 
 // ==========================================
 // 4. PHYSICS & GAME STATE 
-// (This is what you were looking for!)
 // ==========================================
 let playerVelocityY = 0;
-const gravity = -0.04;
+const gravity = -0.15; // CHANGED: Was -0.04. This makes the craft fall MUCH faster
 let isJumping = false;
 
-let currentLane = 0; // -1 (Left), 0 (Center), 1 (Right)
-const laneWidth = 2; // Distance between lanes
-let targetX = 0;     // The X-coordinate we want to slide to
+// ... (lane variables stay the same) ...
 
 // ==========================================
 // 5. GAME ACTION HANDLER
 // ==========================================
 function triggerGameAction(action, velocity) {
-    // Kick drum logic
     if (action === 'ACTION_JUMP' && !isJumping) {
-        const jumpPower = (velocity / 127) * 0.4 + 0.3; 
+        // CHANGED: Increased the base jump power to fight the heavier gravity
+        const jumpPower = (velocity / 127) * 0.5 + 0.8; 
         playerVelocityY = jumpPower;
         isJumping = true;
     } 
+    // ... (rest stays the same)
     // Hi-Hat logic (Move Left)
     else if (action === 'ACTION_LANE_LEFT') {
         if (currentLane > -1) { 
