@@ -9,9 +9,13 @@
     </style>
 </head>
 <body>
-    <h1>id="statusText"</h1>
+    <!-- Fixed the ID placement -->
+    <h1 id="statusText" style="position: absolute; top: 10px; left: 10px; z-index: 100;">Waiting for MIDI...</h1>
     
-    <!-- Notice type="module" - this is required to use import/export in JS -->
+    <!-- Added the Three.js library import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Your Game Logic -->
     <script type="module" src="./game.js"></script>
 </body>
 </html>
