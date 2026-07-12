@@ -5,11 +5,11 @@ export const DRUM_ACTIONS = {
     36: 'ACTION_JUMP',        // Kick
     38: 'ACTION_SHOOT',       // Snare
     
-    // Map all common Hi-Hat states to move left
-    42: 'ACTION_LANE_LEFT',   // Closed Hi-Hat (Edge/Bow)
-    46: 'ACTION_LANE_LEFT',   // Open Hi-Hat
-    44: 'ACTION_LANE_LEFT',   // Hi-Hat Pedal "Chink"
-    26: 'ACTION_LANE_LEFT',   // Hi-Hat Open Rim (Sometimes used by Donner)
+    // Hi-Hat mappings
+    42: 'ACTION_LANE_LEFT',   
+    46: 'ACTION_LANE_LEFT',   
+    44: 'ACTION_LANE_LEFT',   
+    26: 'ACTION_LANE_LEFT',   
     
     51: 'ACTION_LANE_RIGHT'   // Ride
 };
@@ -24,7 +24,7 @@ async function initMIDI() {
             input.onmidimessage = handleDrumHit;
         }
         console.log("MIDI Connected! Start hitting pads.");
-        document.getElementById('statusText').style.display = 'none'; // Hide text once connected
+        document.getElementById('statusText').style.display = 'none'; 
     } catch (err) {
         console.error("Web MIDI access denied or not supported.", err);
     }
@@ -33,7 +33,6 @@ async function initMIDI() {
 function handleDrumHit(event) {
     const [command, note, velocity] = event.data;
     
-    // 153 is "Note On" for MIDI Channel 10
     if (command === 153 && velocity > 0) {
         const action = DRUM_ACTIONS[note];
         if (action) {
@@ -72,30 +71,51 @@ camera.lookAt(0, 0, -10);
 // 4. PHYSICS & GAME STATE 
 // ==========================================
 let playerVelocityY = 0;
-const gravity = -0.15; // CHANGED: Was -0.04. This makes the craft fall MUCH faster
+const gravity = -0.15; // Fast gravity for snappy jumps
 let isJumping = false;
 
-// ... (lane variables stay the same) ...
+let currentLane = 0; 
+const laneWidth = 2; 
+let targetX = 0;     
+
+// NEW: Array to hold all active lasers on screen
+const lasers = [];
 
 // ==========================================
 // 5. GAME ACTION HANDLER
 // ==========================================
 function triggerGameAction(action, velocity) {
+    
+    // Jump (Kick)
     if (action === 'ACTION_JUMP' && !isJumping) {
-        // CHANGED: Increased the base jump power to fight the heavier gravity
         const jumpPower = (velocity / 127) * 0.5 + 0.8; 
         playerVelocityY = jumpPower;
         isJumping = true;
     } 
-    // ... (rest stays the same)
-    // Hi-Hat logic (Move Left)
+    
+    // NEW: Shoot (Snare)
+    else if (action === 'ACTION_SHOOT') {
+        // Build a small red laser box
+        const laserGeo = new THREE.BoxGeometry(0.2, 0.2, 1.5);
+        const laserMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red
+        const laser = new THREE.Mesh(laserGeo, laserMat);
+        
+        // Spawn it exactly where the player currently is
+        laser.position.set(player.position.x, player.position.y, player.position.z);
+        
+        scene.add(laser);
+        lasers.push(laser); // Add to our tracking array
+    }
+
+    // Move Left (Hi-Hat)
     else if (action === 'ACTION_LANE_LEFT') {
         if (currentLane > -1) { 
             currentLane--;
             targetX = currentLane * laneWidth;
         }
     } 
-    // Ride Cymbal logic (Move Right)
+    
+    // Move Right (Ride)
     else if (action === 'ACTION_LANE_RIGHT') {
         if (currentLane < 1) { 
             currentLane++;
@@ -122,8 +142,19 @@ function animate() {
         }
     }
     
-    // Handle Lane Shifting (Smooth Interpolation)
+    // Handle Lane Shifting
     player.position.x += (targetX - player.position.x) * 0.15;
+    
+    // NEW: Handle Lasers (Fly forward)
+    for (let i = lasers.length - 1; i >= 0; i--) {
+        lasers[i].position.z -= 1.0; // Speed of the laser
+        
+        // Clean up lasers that go too far off screen so we don't crash the browser
+        if (lasers[i].position.z < -60) {
+            scene.remove(lasers[i]);
+            lasers.splice(i, 1);
+        }
+    }
     
     // Scroll the track
     gridHelper.position.z += 0.3; 
@@ -137,7 +168,6 @@ function animate() {
 // Start the game loop
 animate();
 
-// Handle window resizing cleanly
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
