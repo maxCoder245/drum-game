@@ -3,18 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rhythm Rider</title>
+    <title>MIDI Rhythm Hovercraft</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #111; color: white; font-family: sans-serif; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+        
+        #game-canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* UI Overlays */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        #health-container {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #health-bar {
+            width: 100%;
+            height: 20px;
+            background: #00ff88;
+            transition: width 0.2s, background-color 0.2s;
+        }
+
+        #midi-status {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            pointer-events: auto;
+        }
+
+        /* File Upload Overlay */
+        #upload-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #444;
+            text-align: center;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .upload-btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .upload-btn:hover { background: #00cc6a; }
+
+        input[type="file"] { display: none; }
+
+        /* End Game Modal */
+        #end-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 25, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            text-align: center;
+            pointer-events: auto;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+            min-width: 300px;
+        }
+
+        #end-modal h2 { margin-top: 0; color: #00ff88; font-size: 2rem;}
+        .stat-line { display: flex; justify-content: space-between; margin: 15px 0; font-size: 1.2rem;}
+        .stat-line span.val { font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1 id="statusText" style="position: absolute; top: 10px; left: 10px; z-index: 100;">Waiting for MIDI...</h1>
-    
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- Game Logic -->
-    <script type="module" src="./game.js"></script>
+    <div id="ui-layer">
+        <div id="top-bar">
+            <div>
+                <h3 style="margin: 0 0 5px 0;">INTEGRITY</h3>
+                <div id="health-container">
+                    <div id="health-bar"></div>
+                </div>
+            </div>
+            <div id="midi-status">Waiting for MIDI...</div>
+        </div>
+    </div>
+
+    <div id="upload-overlay">
+        <h2>MIDI Rhythm Hovercraft</h2>
+        <p>Connect your Donner DED-200X, upload a drum track, and play!</p>
+        <p style="font-size: 0.9em; color: #aaa;">Kick: Shoot | Snare: Jump | Open HH: Left | Closed HH: Right</p>
+        <label for="midi-upload" class="upload-btn">Upload .mid Track</label>
+        <input type="file" id="midi-upload" accept=".mid,.midi">
+    </div>
+
+    <div id="end-modal">
+        <h2>TRACK COMPLETE</h2>
+        <div class="stat-line"><span>Total Notes:</span> <span class="val" id="stat-total">0</span></div>
+        <div class="stat-line"><span>Hits / Misses:</span> <span class="val" id="stat-hits-misses">0 / 0</span></div>
+        <div class="stat-line"><span>Accuracy:</span> <span class="val" id="stat-acc">0%</span></div>
+        <div class="stat-line"><span>Avg Delay:</span> <span class="val" id="stat-delay">0ms</span></div>
+        <button class="upload-btn" onclick="location.reload()">Play Again</button>
+    </div>
+
+    <!-- ES Module Script -->
+    <script type="module" src="game.js"></script>
 </body>
 </html>
